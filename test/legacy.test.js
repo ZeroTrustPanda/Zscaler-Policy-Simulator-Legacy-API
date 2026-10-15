@@ -114,3 +114,16 @@ test('credentials file: sections and prefixed keys; secrets never in the public 
   const merged = credfile.merge({ zia: { username: 'other@agency.gov', password: '' } }, parsed);
   assert.equal(merged.zia.username, 'other@agency.gov'); assert.equal(merged.zia.password, 'pw');
 });
+
+test('credentials file search ignores the shipped example file', () => {
+  const fs = require('fs'), os = require('os'), path = require('path');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zpsl-'));
+  fs.copyFileSync(path.join(__dirname, '..', 'LegacyAPI-example.txt'), path.join(dir, 'LegacyAPI-example.txt'));
+  const prev = process.env.ZPSL_APP_DIR, cwd = process.cwd();
+  process.env.ZPSL_APP_DIR = dir; process.chdir(dir);
+  try {
+    assert.equal(credfile.findFile(), null);
+    fs.writeFileSync(path.join(dir, 'LegacyAPI.txt'), '[ZPA]\nbaseurl=config.zpagov.us\n');
+    assert.equal(path.basename(credfile.findFile()), 'LegacyAPI.txt');
+  } finally { process.chdir(cwd); if (prev === undefined) delete process.env.ZPSL_APP_DIR; else process.env.ZPSL_APP_DIR = prev; fs.rmSync(dir, { recursive: true, force: true }); }
+});

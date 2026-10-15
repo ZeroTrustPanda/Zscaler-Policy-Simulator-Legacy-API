@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-10-15
+- Connect: per-product toggles (ZIA, ZPA, Mobile Admin); only switched-on products show credentials, sign in and load; remembered per browser.
+- Error for a product switched on without credentials.
+- Fix: LegacyAPI-example.txt was picked up as the credentials file (example/sample/template files are now ignored).
+
 ## 1.0.0 — 2026-10-15
 - First release: the legacy-API edition of the ZeroTrustPanda ZS Policy Simulator (based on v1.6.4).
 - Legacy client for ZIA (obfuscated API key, `JSESSIONID`), ZPA (`/signin`, Bearer) and Mobile Admin (`/papi/auth/v1/login`, `auth-token`). Each product has its own base URL, is signed in to separately and re-signs in on 401.

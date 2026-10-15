@@ -1,6 +1,6 @@
 {
   "name": "zscaler-policy-simulator-legacy-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Zscaler Policy Simulator Legacy API: standalone Zscaler policy simulator (ZIA, ZPA, Client Connector) over the legacy APIs, for GovCloud and other clouds without OneAPI",
   "main": "server.js",
   "bin": "server.js",

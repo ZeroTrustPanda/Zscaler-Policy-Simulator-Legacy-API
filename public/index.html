@@ -213,8 +213,8 @@ table.cmp tr.diff td:first-child { box-shadow: inset 3px 0 0 #f59e0b; }
 .posture ul { margin: 4px 0 6px 18px; padding: 0; } .posture li { margin: 2px 0; }
 .posture .pf { margin-top: 4px; } .posture .pn { margin-top: 4px; font-size: 12px; opacity: .75; }
 .lk-details summary { font-size: 12px; }
-.prod-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-@media (max-width: 1100px) { .prod-grid { grid-template-columns: 1fr; } }
+.prod-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.prod-grid:empty, .prod-grid:not(:has(fieldset:not(.hidden))) { display: none; }
 fieldset.prod { border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px 14px; margin: 0; min-width: 0; }
 fieldset.prod legend { font-size: 13px; font-weight: 600; padding: 0 6px; color: var(--text-primary); }
 fieldset.prod .form-label { margin-top: 8px; display: block; }
@@ -280,22 +280,29 @@ td.cb, th.cb { width: 32px; } td.cb input { cursor: pointer; }
     <main class="content">
       <section id="step1">
         <div class="card">
-          <div class="card-header"><h2>Connect to Zscaler</h2><p>Legacy API credentials for each product, on your cloud's API hosts (GovCloud or any cloud without OneAPI). Fill in the products you use and leave the others empty. Used only to read policy; credentials stay in memory on this computer.</p></div>
+          <div class="card-header"><h2>Connect to Zscaler</h2><p>Legacy API credentials for each product, on your cloud's API hosts (GovCloud or any cloud without OneAPI). Turn on the products this tenant has, then enter their keys. Used only to read policy; credentials stay in memory on this computer.</p></div>
           <div class="note hidden" id="credFileNote" style="margin-bottom:14px"></div>
+          <div class="section-title">Products in this tenant</div>
+          <div class="chips" id="prodChips">
+            <label class="chip"><input type="checkbox" class="prodOn" value="zia">🌐 Internet Access (ZIA)</label>
+            <label class="chip"><input type="checkbox" class="prodOn" value="zpa">🔒 Private Access (ZPA)</label>
+            <label class="chip"><input type="checkbox" class="prodOn" value="zcc">💻 Client Connector (Mobile Admin)</label>
+          </div>
+          <div class="form-hint" id="prodHint" style="margin:8px 0 14px">Turn on the products you have. Only those ask for API keys and get loaded.</div>
           <div class="prod-grid">
-            <fieldset class="prod" data-p="zia"><legend>🌐 Internet Access (ZIA)</legend>
+            <fieldset class="prod hidden" data-p="zia"><legend>🌐 Internet Access (ZIA)</legend>
               <label class="form-label">API base URL</label><input type="text" data-f="baseUrl" placeholder="https://zsapi.zscalerten.net" autocomplete="off">
               <label class="form-label">Admin username</label><input type="text" data-f="username" placeholder="admin@agency.gov" autocomplete="off">
               <label class="form-label">Password</label><input type="password" data-f="password" autocomplete="off">
               <label class="form-label">API key</label><input type="password" data-f="apiKey" autocomplete="off">
             </fieldset>
-            <fieldset class="prod" data-p="zpa"><legend>🔒 Private Access (ZPA)</legend>
+            <fieldset class="prod hidden" data-p="zpa"><legend>🔒 Private Access (ZPA)</legend>
               <label class="form-label">API base URL</label><input type="text" data-f="baseUrl" placeholder="https://config.zpagov.us" autocomplete="off">
               <label class="form-label">Client ID</label><input type="text" data-f="clientId" autocomplete="off">
               <label class="form-label">Client secret</label><input type="password" data-f="clientSecret" autocomplete="off">
               <label class="form-label">Customer ID</label><input type="text" data-f="customerId" inputmode="numeric" autocomplete="off">
             </fieldset>
-            <fieldset class="prod" data-p="zcc"><legend>💻 Client Connector (Mobile Admin)</legend>
+            <fieldset class="prod hidden" data-p="zcc"><legend>💻 Client Connector (Mobile Admin)</legend>
               <label class="form-label">API base URL</label><input type="text" data-f="baseUrl" placeholder="https://mobile6.zscalerten.net" autocomplete="off">
               <label class="form-label">API key</label><input type="text" data-f="apiKey" autocomplete="off">
               <label class="form-label">Secret key</label><input type="password" data-f="secretKey" autocomplete="off">
@@ -496,6 +503,22 @@ const PROD_NAME = { zia: 'ZIA', zpa: 'ZPA', zcc: 'ZCC' };
 const SECRET_F = new Set(['password', 'apiKey', 'clientSecret', 'secretKey']);
 let credFile = null;
 function prodFields(p) { return [...document.querySelectorAll(`fieldset.prod[data-p=${p}] input`)]; }
+const prodOn = () => [...document.querySelectorAll('.prodOn:checked')].map((c) => c.value);
+function syncProducts(save = true) {
+  for (const cb of document.querySelectorAll('.prodOn')) {
+    cb.parentNode.classList.toggle('on', cb.checked);
+    document.querySelector(`fieldset.prod[data-p=${cb.value}]`).classList.toggle('hidden', !cb.checked);
+  }
+  const on = prodOn();
+  $('prodHint').textContent = on.length ? `Enter the API credentials for ${on.map((p) => ({ zia: 'ZIA', zpa: 'ZPA', zcc: 'Mobile Admin' }[p])).join(', ')}. The other products are skipped.` : 'Turn on the products you have. Only those ask for API keys and get loaded.';
+  if (save) try { localStorage.setItem('zpsl.products', JSON.stringify(on)); } catch {}
+}
+(function restoreProducts() {
+  let on = [];
+  try { on = JSON.parse(localStorage.getItem('zpsl.products') || '[]'); } catch {}
+  for (const cb of document.querySelectorAll('.prodOn')) { cb.checked = on.includes(cb.value); cb.addEventListener('change', () => syncProducts()); }
+  syncProducts(false);
+})();
 function syncFilled() {
   for (const fs of document.querySelectorAll('fieldset.prod')) fs.classList.toggle('filled', [...fs.querySelectorAll('input')].some((i) => i.value.trim() || i.dataset.fromFile));
 }
@@ -513,6 +536,8 @@ fetch('/api/credfile').then((r) => r.json()).then((j) => {
     const f = j.fields[p] || {}, keys = Object.keys(f);
     if (!keys.length) continue;
     parts.push(`${PROD_NAME[p]} (${keys.length} field${keys.length === 1 ? '' : 's'})`);
+    let saved = null; try { saved = localStorage.getItem('zpsl.products'); } catch {}
+    if (saved == null) { const cb = document.querySelector(`.prodOn[value=${p}]`); if (cb) cb.checked = true; }
     for (const i of prodFields(p)) {
       if (!f[i.dataset.f]) continue;
       if (f[i.dataset.f] === true) { i.placeholder = `from ${j.file}`; i.dataset.fromFile = '1'; }
@@ -521,17 +546,19 @@ fetch('/api/credfile').then((r) => r.json()).then((j) => {
   }
   $('credFileNote').innerHTML = `🔑 Using <b>${esc(j.file)}</b> next to the app: ${esc(parts.join(', ') || 'no recognised fields')}. Fields you type here take priority.${j.error ? ' <span class="err">' + esc(j.error) + '</span>' : ''}`;
   $('credFileNote').classList.remove('hidden');
-  syncFilled();
+  syncProducts(false); syncFilled();
 }).catch(() => {});
 function probeHtml(p) {
   return Object.entries(p || {}).map(([k, x]) => `<span class="badge ${x.ok ? 'b-green' : x.skipped ? 'b-slate' : 'b-red'}" style="margin-right:6px">${esc(k)} ${x.ok ? '✓ connected' : x.skipped ? '– not configured' : '✗ ' + esc(x.status || 'error')}</span>`).join('')
     + Object.entries(p || {}).filter(([, x]) => !x.ok && !x.skipped).map(([k, x]) => `<div class="note" style="margin-top:6px">${esc(k)}: ${esc(x.error)}</div>`).join('');
 }
 $('btnConnect').onclick = async () => {
+  const on = prodOn();
+  if (!on.length) { msg('connMsg', 'Turn on at least one product (ZIA, ZPA or Mobile Admin).'); return; }
   $('btnConnect').disabled = true; $('connMsg').innerHTML = '<span class="spinner"></span> Signing in…'; $('probeOut').innerHTML = '';
-  const body = { useFile: !!credFile };
-  const remember = {};
-  for (const p of ['zia', 'zpa', 'zcc']) {
+  const body = { useFile: !!credFile, products: on };
+  let remember = {}; try { remember = JSON.parse(localStorage.getItem('zpsl.connect') || '{}'); } catch {}
+  for (const p of on) {
     body[p] = {}; remember[p] = {};
     for (const i of prodFields(p)) { body[p][i.dataset.f] = i.value.trim(); if (!SECRET_F.has(i.dataset.f)) remember[p][i.dataset.f] = i.value.trim(); }
   }

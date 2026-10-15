@@ -67,6 +67,11 @@ app.post('/api/connect', wrap(async (req, res) => {
   }
   const file = b.useFile ? credfile.load() : null;
   const creds = credfile.merge({ zia: b.zia, zpa: b.zpa, zcc: b.zcc }, file ? file.creds : {});
+  // Only the products switched on in the form are signed in to (a credentials file can't add the others).
+  if (Array.isArray(b.products)) for (const p of ['zia', 'zpa', 'zcc']) if (!b.products.includes(p)) delete creds[p];
+  const NAME = { zia: 'ZIA', zpa: 'ZPA', zcc: 'Mobile Admin' };
+  const empty = (Array.isArray(b.products) ? b.products : []).filter((p) => !Object.values(creds[p] || {}).some((v) => String(v || '').trim()));
+  if (empty.length) return res.status(400).json({ error: `${empty.map((p) => NAME[p]).join(' and ')} ${empty.length > 1 ? 'are turned on but have' : 'is turned on but has'} no credentials. Fill them in, or turn ${empty.length > 1 ? 'them' : 'it'} off.` });
   let client;
   try { client = new LegacyClient(creds); } catch (e) { return res.status(400).json({ error: e.message }); }
   const signins = await client.auth().catch((e) => { throw Object.assign(e, { status: 401 }); });

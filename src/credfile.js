@@ -36,7 +36,9 @@ function findFile() {
   for (const d of candidateDirs()) {
     let names = [];
     try { names = fs.readdirSync(d); } catch { continue; }
-    const hit = names.find((n) => NAMES.includes(n.toLowerCase())) || names.find((n) => /legacy/i.test(n) && /api/i.test(n) && /\.txt$/i.test(n));
+    // Never the shipped example (LegacyAPI-example.txt) or other samples/templates.
+    const real = names.filter((n) => !/example|sample|template/i.test(n));
+    const hit = real.find((n) => NAMES.includes(n.toLowerCase())) || real.find((n) => /legacy/i.test(n) && /api/i.test(n) && /\.txt$/i.test(n));
     if (hit) return path.join(d, hit);
   }
   return null;

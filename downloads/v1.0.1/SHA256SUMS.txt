@@ -1,0 +1,3 @@
+20cac4febab950df615d13110c2b25ee85e57cfee859c158b852455300f4ace2  Zscaler-Policy-Simulator-Legacy-API-1.0.1-macos-arm64.zip
+c09b13e7d66ff96438b4ae321ba97bf277774655822a52e0fede2d58fb6f8120  Zscaler-Policy-Simulator-Legacy-API-1.0.1-macos-x64.zip
+4d8bfc769b2294c292802ce8997e8c41947edda6a7732640816b18699fdd0672  Zscaler-Policy-Simulator-Legacy-API-1.0.1-windows-x64.zip

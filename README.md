@@ -1,15 +1,15 @@
 # Zscaler Policy Simulator — Legacy API
 
-**Downloads (v1.0.0):** [Windows x64](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.0/Zscaler-Policy-Simulator-Legacy-API-1.0.0-windows-x64.zip) · [macOS Apple Silicon](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.0/Zscaler-Policy-Simulator-Legacy-API-1.0.0-macos-arm64.zip) · [macOS Intel](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.0/Zscaler-Policy-Simulator-Legacy-API-1.0.0-macos-x64.zip) · [SHA256SUMS](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.0/SHA256SUMS.txt) — Release notes: [RELEASE_NOTES.md](RELEASE_NOTES.md) · history: [CHANGELOG.md](CHANGELOG.md)
+**Downloads (v1.0.1):** [Windows x64](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.1/Zscaler-Policy-Simulator-Legacy-API-1.0.1-windows-x64.zip) · [macOS Apple Silicon](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.1/Zscaler-Policy-Simulator-Legacy-API-1.0.1-macos-arm64.zip) · [macOS Intel](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.1/Zscaler-Policy-Simulator-Legacy-API-1.0.1-macos-x64.zip) · [SHA256SUMS](https://github.com/ZeroTrustPanda/Zscaler-Policy-Simulator-Legacy-API/raw/main/downloads/v1.0.1/SHA256SUMS.txt) — Release notes: [RELEASE_NOTES.md](RELEASE_NOTES.md) · history: [CHANGELOG.md](CHANGELOG.md)
 
 *Coded by Steven Hajny, Distinguished Engineer*
 
 Standalone tool that answers "would this be allowed, blocked or bypassed — and by what?" against your live Zscaler policy, over the **legacy APIs**. Built for **GovCloud** (for example `zscalerten` and `zscalergov`), where OneAPI isn't available, and works on any cloud that still serves the legacy ZIA, ZPA and Mobile Admin APIs.
 
-It's the legacy-API edition of the [ZeroTrustPanda ZS Policy Simulator](https://github.com/ZeroTrustPanda/ZTP-Policy-Simulator) (OneAPI) and shares its evaluation engine. Version 1.0.0 is **read-only**: it reads policy and never changes it.
+It's the legacy-API edition of the [ZeroTrustPanda ZS Policy Simulator](https://github.com/ZeroTrustPanda/ZTP-Policy-Simulator) (OneAPI) and shares its evaluation engine. It is **read-only**: it reads policy and never changes it.
 
 ## Flow
-1. **Connect.** Enter legacy credentials for each product you use, each with its own API base URL. Leave a product empty to skip it.
+1. **Connect.** Switch on the products this tenant has (ZIA, ZPA, Client Connector / Mobile Admin). Only those show a credentials form and are signed in to, so a ZPA-only customer needs only ZPA keys. Each product has its own API base URL. Your choice is remembered in this browser.
    | Product | API base URL (examples) | Credentials |
    |---|---|---|
    | 🌐 ZIA | `https://zsapi.zscalerten.net`, `https://zsapi.zscalergov.net` | admin username, password, API key |
@@ -79,7 +79,7 @@ Same as the OneAPI edition:
   - Mobile Admin calls go to `{base}/papi/public/v1/…`.
 - **No ZIdentity:** user lookups use ZIA's `/users` and ZPA SCIM.
 - **No customer ID discovery:** the ZPA customer ID is entered on Connect.
-- **Read-only:** the Block it / Allow it workflow and ZPA private-app changes are not included in 1.0.0.
+- **Read-only:** the Block it / Allow it workflow and ZPA private-app changes are not included yet.
 - **Port:** it runs on port **8788**, so it can sit next to the OneAPI edition, which uses 8787.
 
 ## Run
