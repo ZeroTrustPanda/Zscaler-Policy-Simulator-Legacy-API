@@ -1,0 +1,7 @@
+node_modules/
+dist/
+LegacyAPI.txt
+*API*.txt
+!LegacyAPI-example.txt
+snapshots/
+.DS_Store

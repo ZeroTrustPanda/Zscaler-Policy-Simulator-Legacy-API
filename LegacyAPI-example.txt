@@ -1,0 +1,20 @@
+# Copy this file to LegacyAPI.txt next to Zscaler-Policy-Simulator-Legacy-API and fill in the products you use.
+# Leave a section out (or empty) to skip that product. LegacyAPI.txt is ignored by git: never commit real credentials.
+# The app only reads this file. Secrets are used on this computer to sign in and are never sent to the browser.
+
+[ZIA]
+baseurl=https://zsapi.zscalerten.net
+username=admin@agency.gov
+password=CHANGE_ME
+apikey=CHANGE_ME
+
+[ZPA]
+baseurl=https://config.zpagov.us
+clientid=CHANGE_ME
+clientsecret=CHANGE_ME
+customerid=CHANGE_ME
+
+[Mobile Admin]
+baseurl=https://mobile6.zscalerten.net
+apikey=CHANGE_ME
+secretkey=CHANGE_ME
